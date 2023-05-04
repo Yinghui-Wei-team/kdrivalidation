@@ -239,8 +239,8 @@ for (i in 1:n.imp) {
   
 }
 
-saveRDS(rckdrival_csc, file = "../output/rc_csc_model.RData")
-saveRDS(csc_score, file = "../output/rc_csc_score.RData")
+saveRDS(rckdri_csc, file = "../output/rc_csc_model.RData")
+saveRDS(csc_score_app, file = "../output/rc_csc_score.RData")
 
 
 write.csv(csc_auc, file="../output/recalibration/by_imputation/rc_csc_auc.csv", row.names = F)

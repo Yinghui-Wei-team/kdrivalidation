@@ -204,13 +204,11 @@ for (i in 1:n.imp) {
   
 }
 
-saveRDS(rckdri_cox_dcgf, file = "../output/rc_cox_dcgf_model.RData")
-saveRDS(cox_dcgf_score, file = "../output/rc_cox_dcgf_score.RData")
+saveRDS(rckdri_dcgf, file = "../output/rc_cox_dcgf_model.RData")
+saveRDS(dcgf_score_app, file = "../output/rc_cox_dcgf_score.RData")
 
 write.csv(cox_dcgf_auc, file="../output/recalibration/by_imputation/rc_cox_dcgf_auc.csv", row.names = F)
 write.csv(cox_dcgf_brier, file="../output/recalibration/by_imputation/rc_cox_dcgf_brier.csv", row.names = F)
-write.csv(cox_dcgf_cstat, file="../output/recalibration/by_imputation/rc_cox_dcgf_cstat.csv", row.names = F)
-write.csv(cox_dcgf_cboot, file="../output/recalibration/by_imputation/rc_cox_dcgf_cboot.csv", row.names = F)
 write.csv(cox_dcgf_risks, file="../output/rc_cox_dcgf_risks.csv", row.names = F)
 
 
