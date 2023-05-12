@@ -105,7 +105,7 @@ kdriform<- as.formula(paste(outcome,
 #DEFINE DATA FRAMES AND LISTS
 rckdri_dcgf<- list()
 
-B<- 10 #Bootstrap samples
+B<- 500 #Bootstrap samples
 
 #Store results from score function
 dcgf_score_app<- list()
@@ -206,6 +206,9 @@ for (i in 1:n.imp) {
 
 saveRDS(rckdri_dcgf, file = "../output/rc_cox_dcgf_model.RData")
 saveRDS(dcgf_score_app, file = "../output/rc_cox_dcgf_score.RData")
+
+colnames(cox_dcgf_auc)<- c("imputation", "boot", "time", "auc_app", "auc_boot", "auc_orig")
+colnames(cox_dcgf_brier)<- c("imputation", "boot", "time", "brier_app", "brier_boot", "brier_orig")
 
 write.csv(cox_dcgf_auc, file="../output/recalibration/by_imputation/rc_cox_dcgf_auc.csv", row.names = F)
 write.csv(cox_dcgf_brier, file="../output/recalibration/by_imputation/rc_cox_dcgf_brier.csv", row.names = F)

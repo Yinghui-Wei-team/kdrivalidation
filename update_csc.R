@@ -64,56 +64,11 @@ kdriform<- as.formula(paste(outcome,
                             paste(vars, collapse = "+"),
                             sep = "~"))
 
+#Update by developing with a competing risks model
 #Hold all model output in list
 rckdri_csc<- list()
 
-# for(i in 1:n.imp) {
-#   #Data for imputation i
-#   tempD<- filter(D_cr, X_mi_m==i)
-#   
-#   #Cause-specific Cox model with variables used in the KDRI
-#   rckdri_csc[[i]]<- CSC(kdriform, data = tempD, cause = 1)
-# }
-# 
-# coefs<- data.frame()
-# for(i in 1:n.imp) {
-#   coefs<- rbind(coefs, data.frame(imputation=i,
-#                                   var = vars,
-#                                   summary(rckdri_csc[[i]]$models$`Cause 1`)$coefficients[,c("coef", "se(coef)")]))
-# }
-# 
-# #Pool coefficients
-# pool_coef<- coefs %>%
-#   group_by(var) %>%
-#   mutate(pool_coef = mean(coef),
-#             var_within = sum(se.coef.^2)/n.imp,
-#             var_between = sum((coef - pool_coef)^2) / (n.imp-1),
-#             var_total = var_within + var_between + var_between/n.imp,
-#             pool_se = sqrt(var_total),
-#             lower = pool_coef - qnorm(0.975)*pool_se,
-#             upper = pool_coef + qnorm(0.975)*pool_se) %>%
-#   dplyr::select(-contains("var_")) %>%
-#   mutate_if(is.numeric, round, 3) %>%
-#   mutate(ci = paste0("[",lower,", ",upper,"]"),
-#          out = paste0(pool_coef, "<br>", ci)) %>%
-#   distinct(var, pool_coef, pool_se, ci, out)
-# 
-# write.csv(pool_coef, "../output/recalibration/by_imputation/csc_poolcoef.csv", row.names = F)
-# 
-# #Linear predictor
-# D_cr$LP<- as.matrix(D_cr[,vars]) %*% as.matrix(pool_coef[,"pool_coef"])
-# 
-# #Distribution of LP
-# ggplot(D_cr, aes(x=LP-uskdri_lp)) +
-#   geom_histogram() +
-#   facet_wrap(~X_mi_m)
-
-
-#Validate using a competing risks model
-#Hold all model output in list
-rckdri_csc<- list()
-
-B<- 10 #Bootstrap samples
+B<- 500 #Bootstrap samples
 
 #Store results from score function
 csc_score_app<- list()
@@ -135,30 +90,11 @@ for (i in 1:n.imp) {
   #Data for imputation i
   tempD<- filter(D_cr, X_mi_m==i)
   
-  #Include updated KDRI LP in a cause-specific Cox model
+  #Include KDRI variables in a cause-specific Cox model
   rckdri_csc[[i]]<- CSC(kdriform, data = tempD,
                         cause = 1)
   
   print("model ran")
-  
-  # #C-index using IPCW because of Wolbers 2014 (C-index defined in Wolbers 2009)
-  # #Apparent C index
-  # csc_tempout<- pec::cindex(rckdrival_csc[[i]],
-  #                           formula = Hist(etime, etype_fct) ~ 1,
-  #                           data = tempD,
-  #                           splitMethod = "BootCv",
-  #                           B = B,
-  #                           keep.matrix = T,
-  #                           verbose=F)
-  # print("Store cindex")
-  # 
-  # csc_cstat<- rbind(csc_cstat, data.frame(imputation=i,
-  #                                         appCstat=csc_tempout$AppCindex$CauseSpecificCox,
-  #                                         bootCstat=csc_tempout$BootCvCindex$CauseSpecificCox))
-  # 
-  # print("cindex stored")
-  # 
-  # csc_cboot<- cbind(csc_cboot, csc_tempout$BootstrapCrossValCindexMat[[1]])
   
   
   #Time-dependent AUC and Brier score at 1-year and 5-years following transplantation
@@ -242,11 +178,11 @@ for (i in 1:n.imp) {
 saveRDS(rckdri_csc, file = "../output/rc_csc_model.RData")
 saveRDS(csc_score_app, file = "../output/rc_csc_score.RData")
 
+colnames(csc_auc)<- c("imputation", "boot", "time", "auc_app", "auc_boot", "auc_orig")
+colnames(csc_brier)<- c("imputation", "boot", "time", "brier_app", "brier_boot", "brier_orig")
 
 write.csv(csc_auc, file="../output/recalibration/by_imputation/rc_csc_auc.csv", row.names = F)
 write.csv(csc_brier, file="../output/recalibration/by_imputation/rc_csc_brier.csv", row.names = F)
-write.csv(csc_cstat, file="../output/recalibration/by_imputation/rc_csc_cstat.csv", row.names = F)
-write.csv(csc_cboot, file="../output/recalibration/by_imputation/rc_csc_cboot.csv", row.names = F)
 write.csv(csc_risks, file="../output/rc_csc_risks.csv", row.names = F)
 
 
