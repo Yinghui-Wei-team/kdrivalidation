@@ -207,7 +207,6 @@ for (k in 1:length(times)) {
     
     ## Optimism-adjusted performance --------------------------------------
     for (j in 1:B) {
-      bootstaert
       #Bootstrapped data
       boot<- sample(nrow(tempD), replace = TRUE)
       bootdata<- tempD[boot, ]
@@ -302,9 +301,9 @@ for (k in 1:length(times)) {
       rc_dcgf_cal<- rbind(rc_dcgf_cal, data.frame(imputation=i,
                                                 boot=j,
                                                 time = times[k],
-                                                cal_app = summary(cal_slope_app)$mean["clog_risks","estimate"],
-                                                cal_boot = summary(cal_slope_boot)$mean["clog_risks","estimate"],
-                                                cal_orig = summary(cal_slope_orig)$mean["clog_risks","estimate"]
+                                                cal_app = 1 + summary(cal_slope_app)$mean["clog_risks","estimate"],
+                                                cal_boot = 1 + summary(cal_slope_boot)$mean["clog_risks","estimate"],
+                                                cal_orig = 1 + summary(cal_slope_orig)$mean["clog_risks","estimate"]
       )
       )
       

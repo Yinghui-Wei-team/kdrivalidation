@@ -309,9 +309,9 @@ for (k in 1:length(times)) {
       rc_csc_cal<- rbind(rc_csc_cal, data.frame(imputation=i,
                                                 boot=j,
                                                 time = times[k],
-                                                cal_app = summary(cal_slope_app)$mean["clog_risks","estimate"],
-                                                cal_boot = summary(cal_slope_boot)$mean["clog_risks","estimate"],
-                                                cal_orig = summary(cal_slope_orig)$mean["clog_risks","estimate"]
+                                                cal_app = 1 + summary(cal_slope_app)$mean["clog_risks","estimate"],
+                                                cal_boot = 1 + summary(cal_slope_boot)$mean["clog_risks","estimate"],
+                                                cal_orig = 1 + summary(cal_slope_orig)$mean["clog_risks","estimate"]
                                                 )
                          )
       
