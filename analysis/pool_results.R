@@ -64,6 +64,9 @@ val_auc_brier<- lapply(val_auc_brier,
                    }
 )
 
+
+n.imp<-15
+
 val_output<- reduce(c(val_cal, val_auc_brier), full_join) %>%
   group_by(model, times, measure) %>%
   summarise(pool_est = mean(est),
@@ -71,8 +74,8 @@ val_output<- reduce(c(val_cal, val_auc_brier), full_join) %>%
             var_between = sum((est - pool_est)^2) / (n.imp-1),
             var_total = var_within + var_between + var_between/n.imp,
             pool_se = sqrt(var_total),
-            lower = pool_est - (qnorm(0.975)*pool_se),
-            upper = pool_est + (qnorm(0.975)*pool_se)) %>%
+            lower = pool_est - (qt(0.975, df=n.imp-1)*pool_se),
+            upper = pool_est + (qt(0.975, df=n.imp-1)*pool_se)) %>%
   select(-contains("var")) %>%
   mutate_if(is.numeric, round, 3) %>%
   mutate(pool_est = case_when(measure=="calslope" ~ 1+pool_est,
