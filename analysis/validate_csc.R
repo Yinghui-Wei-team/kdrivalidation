@@ -33,17 +33,9 @@ D_cr<- D %>%
          etype_fct = factor(etype))
 
 
-# D_crprep1<- mstate::crprep(Tstop = c("gsurv_yr","psurv_yr"), status = c("gcens","pcens"),
-#                           data = D[which(D$X_mi_m==1),],
-#                           trans = 1, cens = 0,
-#                           id = "arecip_id",
-#                           keep = c("uskdri_lp", "X_mi_m"))
-
-
-
 #Validate using a competing risks model
 #Number of imputed datasets
-n.imp<-10
+n.imp<-15
 
 #Hold all model output in list
 kdri_csc<- list()
@@ -75,33 +67,26 @@ for (i in 1:n.imp) {
                            cause = 1)
   
   
-  #C-index using methods of Wolbers 2009
-  #Estimate
-  csc_out[i,1]<- i
-  csc_out[i,2]<- pec::cindex(kdri_csc[[i]],
-                             formula = Hist(etime, etype_fct) ~ 1,
-                             data = tempD,
-                             cause = 1)$AppCindex$CauseSpecificCox
-
-  #Bootstrap to get SE of C-index
-  for (j in 1:B) {
-    bootdata<- tempD[sample(nrow(tempD), replace = TRUE),]
-    csc_cboot[j]<- pec::cindex(kdri_csc[[i]],
-                               formula = Hist(etime, etype_fct) ~ 1,
-                               data = bootdata,
-                               cause = 1)$AppCindex$CauseSpecificCox
-    if(j %in% c(10,20,30,40,50,60,70,80,90)) print(paste0("Imputation ",i,", bootstrap ",j))
-  }
-  csc_out[i,3]<- sd(csc_cboot)
-  csc_out[i,4]<- quantile(csc_cboot, probs=0.25)
-  csc_out[i,5]<- quantile(csc_cboot, probs=0.75)
-
-  
-  #Calibration slope
-  csc_out[i, 6]<- kdri_csc[[i]]$models$`Cause 1`$coefficients
-  csc_out[i, 7]<- kdri_csc[[i]]$models$`Cause 1`$var
-  csc_out[i, 8]<- kdri_csc[[i]]$models$`Cause 1`$coefficients - (qnorm(0.975)*kdri_csc[[i]]$models$`Cause 1`$var)
-  csc_out[i, 9]<- kdri_csc[[i]]$models$`Cause 1`$coefficients + (qnorm(0.975)*kdri_csc[[i]]$models$`Cause 1`$var)
+  # #C-index using methods of Wolbers 2009
+  # #Estimate
+  # csc_out[i,1]<- i
+  # csc_out[i,2]<- pec::cindex(kdri_csc[[i]],
+  #                            formula = Hist(etime, etype_fct) ~ 1,
+  #                            data = tempD,
+  #                            cause = 1)$AppCindex$CauseSpecificCox
+  # 
+  # #Bootstrap to get SE of C-index
+  # for (j in 1:B) {
+  #   bootdata<- tempD[sample(nrow(tempD), replace = TRUE),]
+  #   csc_cboot[j]<- pec::cindex(kdri_csc[[i]],
+  #                              formula = Hist(etime, etype_fct) ~ 1,
+  #                              data = bootdata,
+  #                              cause = 1)$AppCindex$CauseSpecificCox
+  #   if(j %in% c(10,20,30,40,50,60,70,80,90)) print(paste0("Imputation ",i,", bootstrap ",j))
+  # }
+  # csc_out[i,3]<- sd(csc_cboot)
+  # csc_out[i,4]<- quantile(csc_cboot, probs=0.25)
+  # csc_out[i,5]<- quantile(csc_cboot, probs=0.75)
 
   
   #Time-dependent AUC and Brier score at 1-year and 5-years following transplantation
